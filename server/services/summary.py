@@ -97,16 +97,17 @@ def summarize_responses_by_question_id(question_id: str):
 
         # Construct the prompt
         prompt = (
-            "Please generate a concise, coherent summary based on the following individual response summaries:\n\n"
-            + "\n\n--- Response Summary ---\n\n".join(response_summaries)
-        )
+            "Here are multiple individual summaries from different people answering the same question.\n"
+            "Please generate a short, high-level overview of the common themes or opinions expressed by the group.\n\n"
+            + "\n\n".join(f"- {s}" for s in response_summaries)
+    )
 
         # Call Gemini 2.5 Flash
         model = genai.GenerativeModel("gemini-2.5-flash")
         result = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
-                max_output_tokens=700,
+                max_output_tokens=2000,
                 temperature=0.5
             )
         )
