@@ -14,14 +14,15 @@ db = client.get_database()
 questions_collection = db["questions"]
 recipients_collection = db["recipients"]
 
-def add_question(questions: list[str], flow_id: str, creator_email: str, roles: list):
-    """Add a question document with a unique string question_id, empty summary, and assigned roles."""
+def add_question(title: str, questions: list[str], flow_id: str, creator_email: str, roles: list):
+    """Add a question document with title, unique string question_id, empty summary, and assigned roles."""
     if not recipients_collection.find_one({"email": creator_email}):
         return {"success": False, "message": "Creator (recipient) not found."}
 
     question_id = str(uuid.uuid4())  # generate a unique string ID
 
     doc = {
+        "title": title,
         "question_id": question_id,
         "questions": questions,
         "flow_id": flow_id,
