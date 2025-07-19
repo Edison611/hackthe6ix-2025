@@ -1,64 +1,56 @@
-from roles import add_role, get_all_roles
+import os
+from bson import ObjectId
+from unittest.mock import patch
 from recipients import add_recipient, get_all_recipients
-from questions import add_question, get_all_questions, get_question_by_id, update_summary, get_response_status_for_question
-from responses import add_response
-from pprint import pprint
+from questions import add_question, update_summary, get_question_by_id, get_response_status_for_question, get_all_questions, summarize_question_responses
+from responses import add_response, get_responses_by_question_id, update_response_summary
 
-# Optional: clear entire DB before testing
-# clear_database()
+def test_summarize_with_fake_data():
+    # Add a recipient (if not exists)
+    recipient_email = "fakeuser@example.com"
+    recipients = get_all_recipients()
+    if not any(r["email"] == recipient_email for r in recipients):
+        add_recipient(recipient_email, role_ids=[])  # Add with no roles for simplicity
 
-# Step 1: Create roles
-print("\n--- Adding Roles ---")
-role_resp1 = add_role("Manager")
-role_resp2 = add_role("Engineer")
-print(role_resp1)
-print(role_resp2)
+    # Add a question
+    question_data = add_question(
+        title="Test Summary Question",
+        questions=["What is your favorite hobby?", "Why do you enjoy it?"],
+        flow_id="test-flow",
+        creator_email=recipient_email,
+        roles=[]
+    )
+    question_id = question_data.get("id")
+    print("Added question:", question_id)
 
-all_roles = get_all_roles()
-role_ids = [r["_id"] for r in all_roles]
-print("Roles in DB:", role_ids)
+    # Add some fake responses
+    transcripts = [
+        "I really enjoy painting because it helps me relax.",
+        "My hobby is hiking. It lets me connect with nature and stay fit.",
+        "I love playing chess as it challenges my mind."
+    ]
 
-# Step 2: Add recipients with role IDs
-print("\n--- Adding Recipients ---")
-add_recipient("alice@example.com", [role_ids[0]])
-add_recipient("bob@example.com", [role_ids[1]])
-add_recipient("carol@example.com", role_ids)  # has both roles
+    for t in transcripts:
+        add_response(
+            user_email=recipient_email,
+            question_id=question_id,
+            transcript=t,
+            interview_url="http://example.com/interview"
+        )
+    
+    # Patch the Gemini API call inside summarize_question_responses to mock the AI summary
+    fake_summary = "People enjoy hobbies like painting, hiking, and chess because they provide relaxation, nature connection, fitness, and mental challenge."
 
-print("Recipients:")
-pprint(get_all_recipients())
+    with patch("questions.genai.GenerativeModel.generate_content") as mock_genai:
+        class FakeResponse:
+            def __init__(self, text):
+                self.text = text
+        
+        mock_genai.return_value = FakeResponse(fake_summary)
 
-# Step 3: Add question
-print("\n--- Adding Question ---")
-question_resp = add_question(
-    title="Team Preferences Survey",
-    questions=["Do you prefer remote or in-office work?", "What tools do you use daily?"],
-    flow_id="survey-001",
-    creator_email="alice@example.com",
-    roles=[role_ids[0]]  # send to Managers
-)
-print(question_resp)
+        # Call the summary function
+        summary_result = summarize_question_responses(question_id)
+        print("Summary result:", summary_result)
 
-question_id = question_resp["id"]
-
-# Step 4: Get and update question
-print("\n--- Fetched Question ---")
-fetched = get_question_by_id(question_id)
-pprint(fetched)
-
-print("\n--- Updating Summary ---")
-update_result = update_summary(question_id, "Initial insights summarized.")
-print(update_result)
-
-# Step 5: Add a response
-print("\n--- Adding Response ---")
-add_response(question_id, "alice@example.com", ["Remote", "Slack, Zoom"], "https://interviews.com/alice")
-add_response(question_id, "carol@example.com", ["Hybrid", "Google Meet"], "https://interviews.com/carol")
-
-# Step 6: Response status
-print("\n--- Response Status ---")
-status = get_response_status_for_question(question_id)
-pprint(status)
-
-# Step 7: All Questions
-print("\n--- All Questions ---")
-pprint(get_all_questions())
+if __name__ == "__main__":
+    test_summarize_with_fake_data()

@@ -106,6 +106,7 @@ def get_all_questions():
   
 def summarize_question_responses(question_id: str):
     """Summarize all responses for a given question using Gemini API."""
+<<<<<<< Updated upstream
     responses = get_responses_by_question_id(question_id)
     if not responses:
         return {"success": False, "message": "No responses found for this question."}
@@ -122,3 +123,52 @@ def summarize_question_responses(question_id: str):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
+=======
+    responses_result = get_responses_by_question_id(question_id)
+    
+    # Handle both cases: dict with success/data or a raw list
+    if isinstance(responses_result, dict):
+        if not responses_result.get('success', False) or not responses_result.get('data'):
+            return {"success": False, "message": "No responses found for this question."}
+        responses = responses_result['data']
+    else:
+        responses = responses_result
+
+    if not responses:
+        return {"success": False, "message": "No responses found for this question."}
+
+    # Filter out empty or invalid transcripts
+    response_texts = [resp.get("transcript", "").strip() for resp in responses if resp.get("transcript") and resp["transcript"].strip()]
+    if not response_texts:
+        return {"success": False, "message": "No valid transcripts found to summarize."}
+
+    prompt = (
+        "Please provide a concise summary of the following interview responses:\n\n" +
+        "\n\n--- Transcript ---\n\n".join(response_texts)
+    )
+
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')  # Adjust model name if needed
+        gemini_response = model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                max_output_tokens=500,
+                temperature=0.5,
+            )
+        )
+        summary = gemini_response.text.strip()
+
+        if not summary:
+            return {"success": False, "message": "Gemini API generated an empty summary."}
+
+        return {"success": True, "summary": summary}
+    
+    except genai.types.BlockedPromptException as e:
+        reason = e.response.prompt_feedback.block_reason.name if e.response.prompt_feedback else "unknown"
+        return {"success": False, "message": f"Content blocked by safety settings: {reason}"}
+    except genai.types.BlockedGenerationException as e:
+        reason = e.response.prompt_feedback.block_reason.name if e.response.prompt_feedback else "unknown"
+        return {"success": False, "message": f"Generated content blocked by safety settings: {reason}"}
+    except Exception as e:
+        return {"success": False, "message": f"An unexpected error occurred during summarization: {str(e)}"}
+>>>>>>> Stashed changes
