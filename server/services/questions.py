@@ -4,6 +4,8 @@ from recipients import get_all_recipients
 from responses import get_responses_by_question_id
 from bson import ObjectId
 import os
+import google.generativeai as genai
+import uuid  # to generate unique string IDs
 
 load_dotenv()
 
@@ -100,3 +102,23 @@ def get_all_questions():
         q["_id"] = str(q["_id"])
         q["roles"] = [str(rid) for rid in q.get("roles", [])]
     return questions
+
+  
+def summarize_question_responses(question_id: str):
+    """Summarize all responses for a given question using Gemini API."""
+    responses = get_responses_by_question_id(question_id)
+    if not responses:
+        return {"success": False, "message": "No responses found for this question."}
+
+    # Prepare the input for the Gemini API
+    response_texts = [resp["transcript"] for resp in responses]
+    prompt = f"Summarize the following responses:\n\n" + "\n\n".join(response_texts)
+
+    try:
+        genai.configure(api_key=os.getenv("GEMINI_API"))
+        response = genai.generate_text(prompt=prompt)
+        summary = response.text.strip()
+        return {"success": True, "summary": summary}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
