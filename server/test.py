@@ -1,5 +1,6 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 from roles import add_role, delete_role
 from recipients import add_recipient, delete_recipient
 from questions import add_question, update_summary, get_response_status_for_question
@@ -166,6 +167,46 @@ def run_test():
     print(update_result)
 
 >>>>>>> Stashed changes
+=======
+from roles import add_role, get_all_roles, get_role_by_id, delete_role
+from recipients import add_recipient, get_all_recipients, get_recipient_by_email, delete_recipient
+from questions import add_question, get_all_questions, get_question_by_id, update_summary, get_response_status_for_question
+from responses import add_response, update_response_summary, delete_response, get_response_by_id, get_responses_by_question_id, get_all_responses
+
+def print_section(title):
+    print("\n" + "-" * 10 + f" {title} " + "-" * 10)
+
+def run_test():
+    print_section("Adding Roles")
+    role1 = add_role("Developer")
+    role2 = add_role("Designer")
+    print(role1)
+    print(role2)
+
+    role1_id = role1["id"]
+    role2_id = role2["id"]
+
+    print_section("Adding Recipients")
+    rec1 = add_recipient("user1@example.com", [role1_id])
+    rec2 = add_recipient("user2@example.com", [role2_id])
+    print(rec1)
+    print(rec2)
+
+    print_section("Adding Question")
+    question = add_question(
+        questions=["What is your experience with Python?", "Describe a challenging project you worked on."],
+        flow_id="flow_001",
+        creator_email="user1@example.com",
+        roles=[role1_id]
+    )
+    print(question)
+    question_id = question["question_id"]
+
+    print_section("Updating Question Summary")
+    update_result = update_summary(question_id, "Summary: Python experience and challenge response.")
+    print(update_result)
+
+>>>>>>> Stashed changes
     print_section("Getting Question by ID")
     question_data = get_question_by_id(question_id)
     print(question_data)
@@ -224,6 +265,9 @@ def run_test():
 if __name__ == "__main__":
     run_test()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

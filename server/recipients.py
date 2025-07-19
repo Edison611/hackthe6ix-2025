@@ -9,6 +9,7 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 db = client.get_database()
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 recipients = db["recipients"]
 
@@ -25,6 +26,10 @@ recipients_collection = db["recipients"]
 recipients_collection = db["recipients"]
 
 >>>>>>> Stashed changes
+=======
+recipients_collection = db["recipients"]
+
+>>>>>>> Stashed changes
 def add_recipient(email: str, role_ids: list[str]):
     """Add a recipient with email and list of role ObjectId strings."""
     try:
@@ -37,6 +42,7 @@ def add_recipient(email: str, role_ids: list[str]):
 
     result = recipients_collection.insert_one({
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
         "email": email,
         "role_ids": role_oids
@@ -45,6 +51,12 @@ def add_recipient(email: str, role_ids: list[str]):
     return {"success": True, "message": "Recipient added successfully."}
 
 =======
+    return {"success": True, "message": "Recipient added successfully.", "id": str(result.inserted_id)}
+>>>>>>> Stashed changes
+=======
+        "email": email,
+        "role_ids": role_oids
+    })
     return {"success": True, "message": "Recipient added successfully.", "id": str(result.inserted_id)}
 >>>>>>> Stashed changes
 =======

@@ -9,6 +9,7 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 db = client.get_database()
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 roles = db["roles"]
 
@@ -44,6 +45,15 @@ def add_role(name: str):
     return {"success": True, "message": "Role added successfully.", "id": str(result.inserted_id)}
 
 >>>>>>> Stashed changes
+=======
+roles_collection = db["roles"]
+
+def add_role(name: str):
+    """Add a role with a generated ObjectId and name."""
+    result = roles_collection.insert_one({"name": name})
+    return {"success": True, "message": "Role added successfully.", "id": str(result.inserted_id)}
+
+>>>>>>> Stashed changes
 def delete_role(role_id: str):
     """Delete a role by its ObjectId string."""
     try:
@@ -52,6 +62,9 @@ def delete_role(role_id: str):
         return {"success": False, "message": "Invalid role ID."}
     result = roles_collection.delete_one({"_id": oid})
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

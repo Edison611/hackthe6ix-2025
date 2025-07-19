@@ -9,6 +9,7 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 db = client.get_database()
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 responses = db["responses"]
 recipients = db["recipients"]
@@ -22,6 +23,8 @@ def add_response(user_email: str, question_id: str, transcript: str, interview_u
     question_doc = questions.find_one({"question_id": question_id})
     if not question_doc:
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 responses_collection = db["responses"]
@@ -56,11 +59,15 @@ def update_response_summary(response_id: str, summary: str):
         return {"success": False, "message": "Invalid response ID."}
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     result = responses.update_one(
         {"_id": r_oid},
         {"$set": {"summary": summary}}
     )
+=======
+    result = responses_collection.update_one({"_id": oid}, {"$set": {"summary": summary}})
+>>>>>>> Stashed changes
 =======
     result = responses_collection.update_one({"_id": oid}, {"$set": {"summary": summary}})
 >>>>>>> Stashed changes
@@ -79,12 +86,15 @@ def delete_response(response_id: str):
         return {"success": False, "message": "Invalid response ID."}
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     result = responses.delete_one({"_id": r_oid})
     if result.deleted_count == 0:
         return {"success": False, "message": "Response not found."}
     return {"success": True, "message": "Response deleted successfully."}
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     result = responses_collection.delete_one({"_id": oid})
@@ -115,6 +125,9 @@ def get_response_by_id(response_id: str):
         return {"success": False, "message": "Response not found."}
     return response
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
