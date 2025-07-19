@@ -22,9 +22,9 @@ def add_recipient(email: str, name: str):
     })
     return {"success": True, "message": "Recipient added successfully."}
 
-def update_recipient_roles(email: str, role_ids: list[str]):
+def update_recipient_roles(id: str, role_ids: list[str]):
     """Update recipient's roles given a list of role ObjectId strings."""
-    recipient = recipients_collection.find_one({"email": email})
+    recipient = recipients_collection.find_one({"id": id})
     if not recipient:
         return {"success": False, "message": "Recipient not found."}
 
@@ -34,7 +34,7 @@ def update_recipient_roles(email: str, role_ids: list[str]):
         return {"success": False, "message": "Invalid role ID(s) provided."}
 
     recipients_collection.update_one(
-        {"email": email},
+        {"id": id},
         {"$set": {"role_ids": role_object_ids}}
     )
     return {"success": True, "message": "Roles updated successfully."}

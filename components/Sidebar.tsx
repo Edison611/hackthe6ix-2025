@@ -10,6 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useState } from "react"
+import { CreateInterviewDialog } from "@/components/Create_Interview_Dialog"
+import { useUser } from "@auth0/nextjs-auth0";
 
 const menuItems = [
   {
@@ -51,6 +54,8 @@ const menuItems = [
 ]
 
 export function AppSidebar() {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const { user } = useUser();
   return (
     <Sidebar className="border-r border-slate-200">
       <SidebarHeader className="p-6">
@@ -69,7 +74,19 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2">
-              {menuItems.map((item, index) => (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 shadow-lg transition-all duration-200"
+                >
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-lg w-full">
+                    <Plus className="w-5 h-5 text-white" />
+                    <span className="font-medium text-white">Create</span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
@@ -80,14 +97,33 @@ export function AppSidebar() {
                     } transition-all duration-200`}
                   >
                     <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-lg">
-                      <item.icon className={`w-5 h-5 ${index === 0 ? "text-white" : "text-slate-600"}`} />
-                      <span className={`font-medium ${index === 0 ? "text-white" : "text-slate-700"}`}>
-                        {item.title}
-                      </span>
+                      <item.icon className="w-5 h-5 text-slate-600" />
+                      <span className="font-medium text-slate-700">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Login Button */}
+              {user ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
+                    <a href="/auth/logout" className="flex items-center gap-3 px-4 py-3 rounded-lg">
+                      <Settings className="w-5 h-5 text-slate-600" />
+                      <span className="font-medium text-slate-700">Logout</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
+                    <a href="/auth/login" className="flex items-center gap-3 px-4 py-3 rounded-lg">
+                      <Settings className="w-5 h-5 text-slate-600" />
+                      <span className="font-medium text-slate-700">Login</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -105,6 +141,8 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <CreateInterviewDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </Sidebar>
   )
 }

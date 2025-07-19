@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from services.questions import *
+from services.summary import *
+
 
 router = APIRouter()    
 
@@ -10,7 +12,7 @@ async def get_questions_route():
 
 @router.post("/questions/summarize")
 async def summarize_q_responses(question_id: str):
-    response = summarize_question_responses(question_id)
+    response = summarize_responses_by_question_id(question_id)
     return response
 
 @router.get("/questions/{id}")
