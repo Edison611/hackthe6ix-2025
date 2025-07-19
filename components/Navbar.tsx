@@ -25,8 +25,12 @@ export default function Navbar() {
       <Link href="/trends" className={linkClass("/trends")}>
         Trends
       </Link>
+
       <a href="/auth/login">Login</a>
       <a href="/auth/logout">Logout</a>
+            <Link href="/about" className={linkClass("/about")}>
+        About
+      </Link>
     </nav>
   );
 }
