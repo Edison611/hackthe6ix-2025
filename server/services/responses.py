@@ -104,22 +104,21 @@ def get_all_responses():
     """Get list of all response documents."""
     return list(responses_collection.find({}, {"_id": 0}))
 
-def summarize_response(question_id: str, user_email: str):
+def summarize_response(response_id: str):
     """Generate a summary for a response using Gemini API. Only summarize information from the user, not from the agent."""
-    response = get_response_by_question_and_user(question_id, user_email)
+    response = get_response_by_id(response_id)
     if not response:
         return {"success": False, "message": "Response not found."}
 
     try:
         genai.configure(api_key=os.getenv("GEMINI_API"))
-        model = genai.Model("gemini-1.5-flash")
+        model = genai.Model("gemini-2.5-flash")
         summary = model.generate_text(
-            prompt=f"Summarize the following response: {response['transcript']}",
-            max_output_tokens=100
+            # prompt=f"Summarize the following response: {response['transcript']}",
+           max_output_tokens=100
         ).text
 
         update_response_summary(response["_id"], summary)
         return {"success": True, "summary": summary}
     except Exception as e:
         return {"success": False, "message": str(e)}
-
