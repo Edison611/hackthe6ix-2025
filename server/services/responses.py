@@ -16,12 +16,18 @@ def add_response(user_email: str, question_id: str, transcript: str, interview_u
     """Add a response linked to a recipient and a question, with empty summary."""
     if not recipients_collection.find_one({"email": user_email}):
         return {"success": False, "message": "Recipient (user) not found."}
-    if not questions_collection.find_one({"question_id": question_id}):
+
+    try:
+        q_oid = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
+    if not questions_collection.find_one({"_id": q_oid}):
         return {"success": False, "message": "Question not found."}
 
     response_doc = {
         "user_email": user_email,
-        "question_id": question_id,
+        "question_id": q_oid,
         "transcript": transcript,
         "interview_url": interview_url,
         "summary": ""
@@ -59,8 +65,13 @@ def delete_response(response_id: str):
 
 def get_response_by_question_and_user(question_id: str, user_email: str):
     """Get a single response document by question ID and recipient email."""
+    try:
+        q_oid = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
     response = responses_collection.find_one(
-        {"question_id": question_id, "user_email": user_email},
+        {"question_id": q_oid, "user_email": user_email},
         {"_id": 0}
     )
     if not response:
@@ -69,7 +80,12 @@ def get_response_by_question_and_user(question_id: str, user_email: str):
 
 def get_responses_by_question_id(question_id: str):
     """Get list of response documents by question ID."""
-    return list(responses_collection.find({"question_id": question_id}, {"_id": 0}))
+    try:
+        q_oid = ObjectId(question_id)
+    except Exception:
+        return []
+
+    return list(responses_collection.find({"question_id": q_oid}, {"_id": 0}))
 
 def get_response_by_id(response_id: str):
     """Get a response document by its ObjectId string."""

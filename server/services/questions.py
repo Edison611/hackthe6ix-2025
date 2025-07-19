@@ -2,8 +2,8 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from recipients import get_all_recipients
 from responses import get_responses_by_question_id
+from bson import ObjectId
 import os
-import uuid  # to generate unique string IDs
 
 load_dotenv()
 
@@ -13,35 +13,41 @@ db = client.get_database()
 questions_collection = db["questions"]
 recipients_collection = db["recipients"]
 
-def add_question(title: str, questions: list[str], flow_id: str, creator_email: str, roles: list):
-    """Add a question document with title, unique string question_id, empty summary, and assigned roles."""
+def add_question(title: str, questions: list[str], flow_id: str, creator_email: str, roles: list[str]):
+    """Add a question using MongoDB _id as primary identifier."""
     if not recipients_collection.find_one({"email": creator_email}):
         return {"success": False, "message": "Creator (recipient) not found."}
 
-    question_id = str(uuid.uuid4())  # generate a unique string ID
+    try:
+        role_object_ids = [ObjectId(rid) for rid in roles]
+    except Exception:
+        return {"success": False, "message": "Invalid role ID(s) provided."}
 
     doc = {
         "title": title,
-        "question_id": question_id,
         "questions": questions,
         "flow_id": flow_id,
         "creator_email": creator_email,
         "summary": "",
-        "roles": roles  # list of role IDs associated with this question
+        "roles": role_object_ids
     }
 
     result = questions_collection.insert_one(doc)
     return {
         "success": True,
         "message": "Question added successfully.",
-        "question_id": question_id,
         "id": str(result.inserted_id)
     }
 
 def update_summary(question_id: str, summary: str):
-    """Update the summary field of a question document by question_id."""
+    """Update the summary field by MongoDB _id."""
+    try:
+        _id = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
     result = questions_collection.update_one(
-        {"question_id": question_id},
+        {"_id": _id},
         {"$set": {"summary": summary}}
     )
     if result.matched_count == 0:
@@ -49,9 +55,17 @@ def update_summary(question_id: str, summary: str):
     return {"success": True, "message": "Summary updated successfully."}
 
 def get_question_by_id(question_id: str):
-    question = questions_collection.find_one({"question_id": question_id}, {"_id": 0})
+    try:
+        _id = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
+    question = questions_collection.find_one({"_id": _id})
     if not question:
         return {"success": False, "message": "Question not found."}
+    
+    question["_id"] = str(question["_id"])
+    question["roles"] = [str(rid) for rid in question.get("roles", [])]
     return question
 
 def get_response_status_for_question(question_id: str):
@@ -63,7 +77,6 @@ def get_response_status_for_question(question_id: str):
     all_recipients = get_all_recipients()
 
     if not question_roles:
-        # No roles specified - consider all recipients
         filtered_recipients = all_recipients
     else:
         filtered_recipients = [
@@ -82,4 +95,8 @@ def get_response_status_for_question(question_id: str):
     }
 
 def get_all_questions():
-    return list(questions_collection.find({}, {"_id": 0}))
+    questions = list(questions_collection.find({}))
+    for q in questions:
+        q["_id"] = str(q["_id"])
+        q["roles"] = [str(rid) for rid in q.get("roles", [])]
+    return questions
