@@ -82,6 +82,7 @@ def summarize_response_by_id(response_id: str):
     """
     Summarizes the transcript of a single response (by ID) using Gemini 2.5,
     and updates its 'summary' field *only if it's currently empty*.
+
     """
     try:
         # Fetch response by ObjectId
@@ -96,9 +97,6 @@ def summarize_response_by_id(response_id: str):
             return {"success": True, "skipped": True, "message": "Already summarized. Skipping."}
 
         # Get the transcript
-        transcript = response_doc.get("transcript", "")
-        if not transcript or not isinstance(transcript, str):
-            return {"success": False, "message": "Transcript is empty or invalid."}
 
         # Build prompt
         prompt = (

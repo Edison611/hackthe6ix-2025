@@ -1,57 +1,57 @@
-from pymongo import MongoClient
-from bson import ObjectId
-from dotenv import load_dotenv
-import os
-import pprint
-from summary import summarize_responses_by_question_id
+from recipients import add_recipient, update_recipient_roles
+from roles import add_role
+from questions import add_question, get_question_by_id
+from responses import add_response
+from summary import summarize_response_by_id, summarize_responses_by_question_id
 
-load_dotenv()
-client = MongoClient(os.getenv("MONGODB_URI"))
-db = client.get_database()
-questions = db["questions"]
-responses = db["responses"]
+# Test constants
+ROLE_NAME = "Designer"
+QUESTION_TITLE = "Tool Feedback"
+QUESTION_FLOW_ID = "feedback-flow-1"
+QUESTION_TEXT = ["What's your favorite design tool?", "Why?"]
 
-pp = pprint.PrettyPrinter(indent=2)
+USERS = [
+    {"email": "alice@example.com", "name": "Alice", "transcript": "User: I love using Figma because it’s fast and collaborative."},
+    {"email": "bob@example.com", "name": "Bob", "transcript": "User: Photoshop is my go-to tool for high-end graphics work."}
+]
 
-def test_summary_generation():
-    # 1. Insert a fake question
-    question = {
-        "creator_email": "tester@example.com",
-        "flow_id": "test-flow",
-        "questions": ["How do you feel about our remote policy?"],
-        "roles": [],
-        "summary": "",
-        "title": "Remote Policy Feedback"
-    }
-    question_id = questions.insert_one(question).inserted_id
-    print(f"Created test question with ID: {question_id}")
+def test_question_summary_with_multiple_users():
+    print("=== Setup Role and Recipients ===")
+    role_res = add_role(ROLE_NAME)
+    assert role_res["success"], role_res["message"]
+    role_id = role_res["role_id"]
 
-    # 2. Insert fake responses with summaries
-    response_summaries = [
-        "I love working remotely; it's improved my productivity.",
-        "Remote work makes collaboration harder, but I like the flexibility.",
-        "The remote policy is fair, but hybrid would be better for team cohesion.",
-        "No issues with the policy, just wish for clearer expectations.",
-        "Remote work is convenient, but sometimes I miss in-person meetings."
-    ]
+    for user in USERS:
+        add_recipient(user["email"], user["name"])
+        update_recipient_roles(user["email"], [role_id])
 
-    for summary in response_summaries:
-        responses.insert_one({
-            "question_id": question_id,
-            "email": "user@example.com",
-            "answers": ["Sample answer"],
-            "summary": summary
-        })
+    print("=== Add Question ===")
+    q_res = add_question(
+        title=QUESTION_TITLE,
+        questions=QUESTION_TEXT,
+        flow_id=QUESTION_FLOW_ID,
+        creator_email=USERS[0]["email"],
+        roles=[role_id]
+    )
+    assert q_res["success"], q_res["message"]
+    question_id = q_res["id"]
 
-    # 3. Run the summarizer
-    result = summarize_responses_by_question_id(str(question_id))
-    print("\n=== Summarization Result ===")
-    pp.pprint(result)
+    print("=== Add Responses and Summarize Each ===")
+    for user in USERS:
+        r = add_response(user["email"], question_id, user["transcript"], "http://example.com/interview")
+        assert r["success"], r["message"]
+        response_id = r["id"]
+        print(f"Summarizing response for {user['email']}...")
+        res_summary = summarize_response_by_id(response_id)
+        print(res_summary)
 
-    # 4. Verify DB was updated
-    updated_question = questions.find_one({"_id": question_id})
-    print("\n=== Updated Question Summary ===")
-    print(updated_question.get("summary", "(No summary)"))
+    print("\n=== Summarizing Entire Question ===")
+    final_summary = summarize_responses_by_question_id(question_id)
+    print("Final Summary:", final_summary)
+
+    print("\n=== Updated Question Document ===")
+    q = get_question_by_id(question_id)
+    print("Question Summary:", q["summary"])
 
 if __name__ == "__main__":
-    test_summary_generation()
+    test_question_summary_with_multiple_users()
