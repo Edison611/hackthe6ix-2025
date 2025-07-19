@@ -6,12 +6,12 @@ from config import RIBBON_API_KEY
 BASE_URL = "https://app.ribbon.ai/be-api/v1"
 
 # url = "https://app.ribbon.ai/be-api/v1/interview-flows"
-# headers = {
-#     "accept": "application/json",
-#     "authorization": f"Bearer {RIBBON_API_KEY}",
-#     "content-type": "application/json"
-# }
-# data = {
+headers = {
+    "accept": "application/json",
+    "authorization": f"Bearer {RIBBON_API_KEY}",
+    "content-type": "application/json"
+}
+# sample_data = {
 #     "org_name": "ProgressLoop",
 #     "title": "Standup",
 #     "questions": [
@@ -26,20 +26,41 @@ BASE_URL = "https://app.ribbon.ai/be-api/v1"
 # print(response.status_code)
 # print(response.json())
 
-# async def create_interview_flow(title: str, questions: str, participants: list[str] = []):
-#     payload = {
-#         "title": title,
-#         "questions": questions,
-#         # "participants": participants  # optional if just 1 user
-#     }
+async def create_interview(title: str, questions: str):
+    payload = {
+        "org_name": "ProgressLoop",
+        "title": title,
+        "questions": questions,
+    }
 
-#     async with httpx.AsyncClient() as client:
-#         res = await client.post(f"{BASE_URL}/interviews", headers=headers, json=payload)
-#         res.raise_for_status()
-#         return res.json()
+    async with httpx.AsyncClient() as client:
+        res = await client.post(f"{BASE_URL}/interview-flows", headers=headers, json=payload)
+        res.raise_for_status()
+        return res.json()
+    
+async def send_interviews(interview_flow_id: str, recipients: list[str]):
+    payload = {
+        "interview_flow_id": interview_flow_id,
+        "recipients": recipients
+    }
 
-async def get_interviews():
+    ret_res = []
+
+    for recipient in recipients:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(f"{BASE_URL}/interviews", headers=headers, json=payload)
+            res.raise_for_status()
+            ret_res.append(res.json())
+            # Create request to database to store the interview link
+
+    return ret_res
+            
+
+async def get_interviews(interview_flow_id: str = None):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{BASE_URL}/interviews", headers={"Authorization": f"Bearer {RIBBON_API_KEY}"})
         res.raise_for_status()
-        return res.json()
+        res = res.json()
+        if interview_flow_id:
+            res = [interview for interview in res if interview['interview_flow_id'] == interview_flow_id]
+        return res
