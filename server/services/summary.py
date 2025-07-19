@@ -14,6 +14,7 @@ responses = db["responses"]
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API"))
 
+
 def summarize_responses_by_question_id(question_id: str):
     """
     Summarizes all response summaries linked to a question ID,
@@ -41,8 +42,8 @@ def summarize_responses_by_question_id(question_id: str):
             + "\n\n--- Response Summary ---\n\n".join(response_summaries)
         )
 
-        # Use Gemini to generate a combined summary
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Use Gemini 2.5 to generate a combined summary
+        model = genai.GenerativeModel("gemini-2.5-flash")
         result = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
@@ -50,7 +51,14 @@ def summarize_responses_by_question_id(question_id: str):
                 temperature=0.5
             )
         )
-        final_summary = result.text.strip()
+
+        # Extract result from .parts safely
+        if not hasattr(result, "parts") or not result.parts:
+            return {"success": False, "message": "Gemini returned no usable content."}
+
+        final_summary = ''.join(
+            part.text for part in result.parts if hasattr(part, "text")
+        ).strip()
 
         if not final_summary:
             return {"success": False, "message": "Gemini returned an empty summary."}
@@ -72,8 +80,9 @@ def summarize_responses_by_question_id(question_id: str):
 
 def summarize_response_by_id(response_id: str):
     """
-    Summarizes the transcript of a single response (by ID) using Gemini,
-    and updates its 'summary' field in the database.
+    Summarizes the transcript of a single response (by ID) using Gemini 2.5,
+    and updates its 'summary' field *only if it's currently empty*.
+
     """
     try:
         # Fetch response by ObjectId
@@ -82,19 +91,22 @@ def summarize_response_by_id(response_id: str):
         if not response_doc:
             return {"success": False, "message": "Response not found."}
 
-        transcript = response_doc.get("transcript", "")
-        if not transcript or not isinstance(transcript, str):
-            return {"success": False, "message": "Transcript is empty or invalid."}
+        # Do nothing if already summarized
+        existing_summary = response_doc.get("summary", "")
+        if isinstance(existing_summary, str) and existing_summary.strip():
+            return {"success": True, "skipped": True, "message": "Already summarized. Skipping."}
 
-        # Build prompt for Gemini
+        # Get the transcript
+
+        # Build prompt
         prompt = (
             "The following is a transcript of an interview between a user and an interviewer.\n"
             "Only summarize what the user said. Ignore the agent/interviewer.\n\n"
             f"{transcript}"
         )
 
-        # Generate summary using Gemini
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Generate summary with Gemini 2.5
+        model = genai.GenerativeModel("gemini-2.5-flash")
         result = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
@@ -102,19 +114,25 @@ def summarize_response_by_id(response_id: str):
                 temperature=0.5
             )
         )
-        summary = result.text.strip()
+
+        if not hasattr(result, "parts") or not result.parts:
+            return {"success": False, "message": "Gemini returned no usable content."}
+
+        summary = ''.join(
+            part.text for part in result.parts if hasattr(part, "text")
+        ).strip()
 
         if not summary:
             return {"success": False, "message": "Gemini returned an empty summary."}
 
-        # Update response document with summary
+        # Save to DB
         update_result = responses.update_one(
             {"_id": ObjectId(response_id)},
             {"$set": {"summary": summary}}
         )
 
         if update_result.modified_count == 0:
-            return {"success": False, "message": "Summary generation succeeded, but DB update failed."}
+            return {"success": False, "message": "Summary generated but DB update failed."}
 
         return {"success": True, "summary": summary}
 
