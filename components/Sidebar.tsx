@@ -1,3 +1,5 @@
+"use client"
+
 import { Calendar, FileText, Home, Plus, Settings, Users, Mic, BarChart3 } from "lucide-react"
 import {
   Sidebar,
@@ -10,17 +12,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useState } from "react"
+import { CreateInterviewDialog } from "@/components/Create_Interview_Dialog"
+
 
 const menuItems = [
   {
-    title: "Create",
-    url: "#",
-    icon: Plus,
-    variant: "default" as const,
-  },
-  {
     title: "Dashboard",
-    url: "#",
+    url: "/dashboard",
     icon: Home,
   },
   {
@@ -29,8 +28,8 @@ const menuItems = [
     icon: Mic,
   },
   {
-    title: "Candidates",
-    url: "#",
+    title: "Employees",
+    url: "/users",
     icon: Users,
   },
   {
@@ -44,13 +43,14 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Reports",
-    url: "#",
+    title: "Trends",
+    url: "/trends",
     icon: FileText,
   },
 ]
-
 export function AppSidebar() {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+
   return (
     <Sidebar className="border-r border-slate-200">
       <SidebarHeader className="p-6">
@@ -60,7 +60,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900">InterviewHub</h2>
-            <p className="text-sm text-slate-500">Talent Management</p>
+            <p className="text-sm text-slate-500">Simplify Your Meetings</p>
           </div>
         </div>
       </SidebarHeader>
@@ -69,21 +69,23 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2">
-              {menuItems.map((item, index) => (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 shadow-lg transition-all duration-200"
+                >
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-lg w-full">
+                    <Plus className="w-5 h-5 text-white" />
+                    <span className="font-medium text-white">Create</span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`${
-                      index === 0
-                        ? "bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 shadow-lg"
-                        : "hover:bg-slate-100"
-                    } transition-all duration-200`}
-                  >
+                  <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
                     <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-lg">
-                      <item.icon className={`w-5 h-5 ${index === 0 ? "text-white" : "text-slate-600"}`} />
-                      <span className={`font-medium ${index === 0 ? "text-white" : "text-slate-700"}`}>
-                        {item.title}
-                      </span>
+                      <item.icon className={`w-5 h-5 text-slate-600`} />
+                      <span className={`font-medium text-slate-700`}>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -105,6 +107,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      <CreateInterviewDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </Sidebar>
   )
 }
