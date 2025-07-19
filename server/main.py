@@ -7,6 +7,10 @@ import subprocess
 import json
 import os
 from dotenv import load_dotenv
+<<<<<<< Updated upstream
+=======
+from pymongo import MongoClient
+>>>>>>> Stashed changes
 
 load_dotenv()
 
