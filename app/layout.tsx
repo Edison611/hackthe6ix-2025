@@ -37,7 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100">
+          <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100">
             {showSidebar && <AppSidebar />}
             <main className={`flex-1 p-6 ${showSidebar ? "" : "mx-auto max-w-4xl"}`}>
               {children}
