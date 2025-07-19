@@ -1,8 +1,10 @@
+"use client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Edit, MoreHorizontal, Send, Users } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react"
 
 interface CreatedInterview {
   id: string
@@ -59,6 +61,24 @@ const mockCreatedInterviews: CreatedInterview[] = [
 ]
 
 export function CreatedInterviews() {
+  // const [data, setData] = useState(null)
+  // const [loading, setLoading] = useState(true)
+
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/api/some-data")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setData(data)
+  //       setLoading(false)
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching data:", err)
+  //       setLoading(false)
+  //     })
+  // }, [])
+
+  // if (loading) return <div>Loading...</div>
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

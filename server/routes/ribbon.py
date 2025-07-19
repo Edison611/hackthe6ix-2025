@@ -7,6 +7,8 @@ from typing import List
 class InterviewCreateRequest(BaseModel):
     title: str
     questions: List[str]
+    creator_email: str
+    roles: List[str]
 
 router = APIRouter()    
 
@@ -20,7 +22,9 @@ async def get_interviews_route(interview_flow_id: str = None):
 async def create_interview_route(data: InterviewCreateRequest):
     response = await create_interview(data.title, data.questions)
     print(response)
-    response = add_question(title="Test", questions=data.questions, flow_id=response.get("interview_flow_id"), creator_email="creator@example.com", roles=["role1", "role2"])
+    response = add_question(title=data.title, questions=data.questions, flow_id=response.get("interview_flow_id"), creator_email=data.creator_email, roles=data.roles)
+    print(response)
+    
     return response
 
 

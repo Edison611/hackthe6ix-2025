@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Trash2, Users } from "lucide-react"
+import { useUser } from "@auth0/nextjs-auth0"
 
 interface Question {
   id: string
@@ -40,6 +41,8 @@ const availableRoles = [
 ]
 
 export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDialogProps) {
+    const { user, isLoading } = useUser()
+    console.log(user);
   const [interviewTitle, setInterviewTitle] = useState("")
   const [questions, setQuestions] = useState<Question[]>([{ id: "1", text: "" }])
   const [selectedRoles, setSelectedRoles] = useState<string[]>([])
@@ -67,11 +70,13 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
     setSelectedRoles((prev) => (prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     const interviewData = {
       title: interviewTitle,
-      description,
       questions: questions.filter((q) => q.text.trim() !== ""),
+      creator_email: user?.email || "<unknown>",
       roles: selectedRoles,
     }
 
@@ -86,7 +91,21 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
     // Close dialog
     onOpenChange(false)
 
-    // Here you would typically send the data to your API
+    // try {
+    //   const res = await fetch("http://localhost:8000/interviews", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ interviewData }),
+    //   })
+
+    //   const data = await res.json()
+    //   console.log(data)
+    // } catch (err) {
+    //   console.error("Error posting data:", err)
+    // }
+
     alert("Interview created successfully!")
   }
 
