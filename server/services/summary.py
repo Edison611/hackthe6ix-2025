@@ -75,40 +75,49 @@ def summarize_response_by_id(response_id: str):
 
 def summarize_responses_by_question_id(question_id: str):
     """
-    Summarizes all non-empty response summaries linked to a question ID,
-    and updates the 'summary' field of that question using Gemini 1.5 Pro.
+    Summarizes all existing response summaries linked to a question ID,
+    and updates the 'summary' field of that question.
+    Uses Gemini 2.5 Flash and only includes responses that already have non-empty summaries.
     """
     try:
+        # Get all responses tied to the question
         response_docs = list(responses.find({"question_id": ObjectId(question_id)}))
 
         if not response_docs:
             return {"success": False, "message": "No responses found for this question."}
 
+        # Filter out blank summaries
         response_summaries = [
             r["summary"] for r in response_docs
-            if r.get("summary") and isinstance(r["summary"], str) and r["summary"].strip()
+            if isinstance(r.get("summary"), str) and r["summary"].strip()
         ]
 
         if not response_summaries:
             return {"success": False, "message": "No valid response summaries found."}
 
+        # Construct the prompt
         prompt = (
-            "Summarize the following user feedback into 3–5 sentences. "
-            "Identify key themes, concerns, and opinions. Don't list individual responses.\n\n"
+            "Please generate a concise, coherent summary based on the following individual response summaries:\n\n"
             + "\n\n--- Response Summary ---\n\n".join(response_summaries)
         )
 
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        # Call Gemini 2.5 Flash
+        model = genai.GenerativeModel("gemini-2.5-flash")
         result = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
-                max_output_tokens=1000,
+                max_output_tokens=700,
                 temperature=0.5
             )
         )
 
+        # Safely extract the response
         if not hasattr(result, "parts") or not result.parts:
-            return {"success": False, "message": "Gemini returned no usable content."}
+            return {
+                "success": False,
+                "message": "Gemini returned no usable content.",
+                "debug": str(result)
+            }
 
         final_summary = ''.join(
             part.text for part in result.parts if hasattr(part, "text")
@@ -117,13 +126,14 @@ def summarize_responses_by_question_id(question_id: str):
         if not final_summary:
             return {"success": False, "message": "Gemini returned an empty summary."}
 
+        # Update DB with the final summary
         update_result = questions.update_one(
             {"_id": ObjectId(question_id)},
             {"$set": {"summary": final_summary}}
         )
 
         if update_result.modified_count == 0:
-            return {"success": False, "message": "Summary generation succeeded, but DB update failed."}
+            return {"success": False, "message": "Summary generated but DB update failed."}
 
         return {"success": True, "summary": final_summary}
 
