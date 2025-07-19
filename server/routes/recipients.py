@@ -10,15 +10,16 @@ async def get_users_route():
 
 
 @router.post("/users")
-async def create_users_route(email: str):
-    response = add_recipient(email=email)
+async def create_users_route(email: str, name: str):
+    response = add_recipient(email=email, name=name)
     return response
 
 @router.get("/users/{id}")
 async def get_interviews_route(id: str):
     return {}
+# TODO get all interviews for a user
 
 @router.put("/users/{id}")
-async def update_user_route(id: str, email: str):
-    # TODO: Implement update logic
-    return
+async def update_user_role_route(id: str, role_ids: list[str]):
+    response = update_recipient_roles(id, role_ids)
+    return response
