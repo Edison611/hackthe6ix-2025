@@ -4,8 +4,6 @@ from services.recipients import get_all_recipients
 from services.responses import get_responses_by_question_id
 from bson import ObjectId
 import os
-import google.generativeai as genai
-import uuid  # to generate unique string IDs
 
 load_dotenv()
 
@@ -102,62 +100,4 @@ def get_all_questions():
         q["_id"] = str(q["_id"])
         q["roles"] = [str(rid) for rid in q.get("roles", [])]
     return questions
-
-  
-def summarize_question_responses(question_id: str):
-    """Summarize all responses for a given question using Gemini API."""
-    responses_result = get_responses_by_question_id(question_id) # Assuming get_responses_by_question_id also returns a dict with 'success' and 'data'
-    
-    # Adjust based on whether get_responses_by_question_id returns raw list or a dict
-    if not responses_result or not responses_result['success'] or not responses_result['data']:
-         return {"success": False, "message": "No responses found for this question."}
-    
-    responses = responses_result['data'] if 'data' in responses_result else responses_result # Adjust if it returns a raw list
-
-    # Prepare the input for the Gemini API
-    # Ensure there's enough content to summarize
-    if not responses:
-        return {"success": False, "message": "No responses found for this question."}
-
-    # Filter out empty or invalid transcripts if necessary
-    response_texts = [resp["transcript"] for resp in responses if resp.get("transcript") and resp["transcript"].strip()]
-    
-    if not response_texts:
-        return {"success": False, "message": "No valid transcripts found to summarize."}
-
-    # Better prompt for summarizing multiple responses
-    prompt = "Please provide a concise summary of the following interview responses:\n\n" + "\n\n--- Transcript ---\n\n".join(response_texts)
-
-    try:
-        # Ensure API is configured (best done once globally)
-        # genai.configure(api_key=os.getenv("GEMINI_API")) # If not configured globally already
-
-        # Instantiate the model within the function if it's not global, or use the global one
-        model = genai.GenerativeModel('gemini-1.5-flash') # Or 'gemini-pro', 'gemini-2.5-flash' if you want a specific one
-
-        # Use generate_content for Gemini models
-        gemini_response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                max_output_tokens=500, # A bit more tokens for a summary of multiple responses
-                temperature=0.5 # Control creativity
-            )
-        )
-
-        summary = gemini_response.text.strip()
-        
-        if not summary:
-            return {"success": False, "message": "Gemini API generated an empty summary."}
-
-        return {"success": True, "summary": summary}
-    except genai.types.BlockedPromptException as e:
-        return {"success": False, "message": f"Content blocked by safety settings: {e.response.prompt_feedback.block_reason.name if e.response.prompt_feedback else 'unknown'}"}
-    except genai.types.BlockedGenerationException as e:
-        return {"success": False, "message": f"Generated content blocked by safety settings: {e.response.prompt_feedback.block_reason.name if e.response.prompt_feedback else 'unknown'}"}
-    except Exception as e:
-        # Log the full exception for debugging in a real application
-        # logging.error(f"Error summarizing responses for question {question_id}: {e}", exc_info=True)
-        return {"success": False, "message": f"An unexpected error occurred during summarization: {str(e)}"}
-
-
 

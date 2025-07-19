@@ -10,16 +10,34 @@ db = client.get_database()
 
 recipients_collection = db["recipients"]
 
-def add_recipient(email: str, role_ids: list[str] = None):
-    """Add a recipient with email and list of role ObjectId strings."""
+def add_recipient(email: str, name: str):
+    """Add a recipient with email and name. Starts with empty roles."""
     if recipients_collection.find_one({"email": email}):
         return {"success": False, "message": "Recipient with this email already exists."}
 
     recipients_collection.insert_one({
         "email": email,
-        "role_ids": []
+        "role_ids": [],
+        "name": name,
     })
     return {"success": True, "message": "Recipient added successfully."}
+
+def update_recipient_roles(email: str, role_ids: list[str]):
+    """Update recipient's roles given a list of role ObjectId strings."""
+    recipient = recipients_collection.find_one({"email": email})
+    if not recipient:
+        return {"success": False, "message": "Recipient not found."}
+
+    try:
+        role_object_ids = [ObjectId(rid) for rid in role_ids]
+    except Exception:
+        return {"success": False, "message": "Invalid role ID(s) provided."}
+
+    recipients_collection.update_one(
+        {"email": email},
+        {"$set": {"role_ids": role_object_ids}}
+    )
+    return {"success": True, "message": "Roles updated successfully."}
 
 def get_recipient_by_email(email: str):
     recipient = recipients_collection.find_one({"email": email})

@@ -1,64 +1,57 @@
-from roles import add_role, get_all_roles
-from recipients import add_recipient, get_all_recipients
-from questions import add_question, get_all_questions, get_question_by_id, update_summary, get_response_status_for_question
+from recipients import add_recipient, update_recipient_roles
+from roles import add_role
+from questions import add_question, get_question_by_id
 from responses import add_response
-from pprint import pprint
+from summary import summarize_response_by_id, summarize_responses_by_question_id
 
-# Optional: clear entire DB before testing
-# clear_database()
+# Test constants
+ROLE_NAME = "Designer"
+QUESTION_TITLE = "Tool Feedback"
+QUESTION_FLOW_ID = "feedback-flow-1"
+QUESTION_TEXT = ["What's your favorite design tool?", "Why?"]
 
-# Step 1: Create roles
-print("\n--- Adding Roles ---")
-role_resp1 = add_role("Manager")
-role_resp2 = add_role("Engineer")
-print(role_resp1)
-print(role_resp2)
+USERS = [
+    {"email": "alice@example.com", "name": "Alice", "transcript": "User: I love using Figma because it’s fast and collaborative."},
+    {"email": "bob@example.com", "name": "Bob", "transcript": "User: Photoshop is my go-to tool for high-end graphics work."}
+]
 
-all_roles = get_all_roles()
-role_ids = [r["_id"] for r in all_roles]
-print("Roles in DB:", role_ids)
+def test_question_summary_with_multiple_users():
+    print("=== Setup Role and Recipients ===")
+    role_res = add_role(ROLE_NAME)
+    assert role_res["success"], role_res["message"]
+    role_id = role_res["role_id"]
 
-# Step 2: Add recipients with role IDs
-print("\n--- Adding Recipients ---")
-add_recipient("alice@example.com", [role_ids[0]])
-add_recipient("bob@example.com", [role_ids[1]])
-add_recipient("carol@example.com", role_ids)  # has both roles
+    for user in USERS:
+        add_recipient(user["email"], user["name"])
+        update_recipient_roles(user["email"], [role_id])
 
-print("Recipients:")
-pprint(get_all_recipients())
+    print("=== Add Question ===")
+    q_res = add_question(
+        title=QUESTION_TITLE,
+        questions=QUESTION_TEXT,
+        flow_id=QUESTION_FLOW_ID,
+        creator_email=USERS[0]["email"],
+        roles=[role_id]
+    )
+    assert q_res["success"], q_res["message"]
+    question_id = q_res["id"]
 
-# Step 3: Add question
-print("\n--- Adding Question ---")
-question_resp = add_question(
-    title="Team Preferences Survey",
-    questions=["Do you prefer remote or in-office work?", "What tools do you use daily?"],
-    flow_id="survey-001",
-    creator_email="alice@example.com",
-    roles=[role_ids[0]]  # send to Managers
-)
-print(question_resp)
+    print("=== Add Responses and Summarize Each ===")
+    for user in USERS:
+        r = add_response(user["email"], question_id, user["transcript"], "http://example.com/interview")
+        assert r["success"], r["message"]
+        response_id = r["id"]
+        print(f"Summarizing response for {user['email']}...")
+        res_summary = summarize_response_by_id(response_id)
+        print(res_summary)
 
-question_id = question_resp["id"]
+    print("\n=== Summarizing Entire Question ===")
+    final_summary = summarize_responses_by_question_id(question_id)
+    print("Final Summary:", final_summary)
 
-# Step 4: Get and update question
-print("\n--- Fetched Question ---")
-fetched = get_question_by_id(question_id)
-pprint(fetched)
+    print("\n=== Updated Question Document ===")
+    q = get_question_by_id(question_id)
+    print("Question Summary:", q["summary"])
 
-print("\n--- Updating Summary ---")
-update_result = update_summary(question_id, "Initial insights summarized.")
-print(update_result)
-
-# Step 5: Add a response
-print("\n--- Adding Response ---")
-add_response(question_id, "alice@example.com", ["Remote", "Slack, Zoom"], "https://interviews.com/alice")
-add_response(question_id, "carol@example.com", ["Hybrid", "Google Meet"], "https://interviews.com/carol")
-
-# Step 6: Response status
-print("\n--- Response Status ---")
-status = get_response_status_for_question(question_id)
-pprint(status)
-
-# Step 7: All Questions
-print("\n--- All Questions ---")
-pprint(get_all_questions())
+if __name__ == "__main__":
+    test_question_summary_with_multiple_users()
