@@ -1,5 +1,12 @@
 from fastapi import APIRouter
 from services.ribbon import *
+from services.questions import add_question
+from pydantic import BaseModel
+from typing import List
+
+class InterviewCreateRequest(BaseModel):
+    title: str
+    questions: List[str]
 
 router = APIRouter()    
 
@@ -10,8 +17,10 @@ async def get_interviews_route(interview_flow_id: str = None):
 
 
 @router.post("/interviews")
-async def create_interview_route(title: str, questions: list[str]):
-    response = await create_interview(title, questions)
+async def create_interview_route(data: InterviewCreateRequest):
+    response = await create_interview(data.title, data.questions)
+    print(response)
+    response = add_question(title="Test", questions=data.questions, flow_id=response.get("interview_flow_id"), creator_email="creator@example.com", roles=["role1", "role2"])
     return response
 
 

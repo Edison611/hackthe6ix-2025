@@ -21,11 +21,6 @@ headers = {
 #     ]
 # }
 
-# response = requests.post(url, json=data, headers=headers)
-
-# print(response.status_code)
-# print(response.json())
-
 async def create_interview(title: str, questions: str):
     payload = {
         "org_name": "ProgressLoop",
@@ -37,6 +32,7 @@ async def create_interview(title: str, questions: str):
         res = await client.post(f"{BASE_URL}/interview-flows", headers=headers, json=payload)
         res.raise_for_status()
         return res.json()
+    
     
 async def send_interviews(interview_flow_id: str, recipients: list[str]):
     payload = {

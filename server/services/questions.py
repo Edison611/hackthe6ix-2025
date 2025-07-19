@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from recipients import get_all_recipients
-from responses import get_responses_by_question_id
+from services.recipients import get_all_recipients
+from services.responses import get_responses_by_question_id
 from bson import ObjectId
 import os
 

@@ -17,8 +17,8 @@ def add_recipient(email: str, name: str):
 
     recipients_collection.insert_one({
         "email": email,
+        "role_ids": [],
         "name": name,
-        "role_ids": []  # start with no roles
     })
     return {"success": True, "message": "Recipient added successfully."}
 
