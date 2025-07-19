@@ -60,3 +60,10 @@ function FeatureCard({ title, description }: { title: string; description: strin
     </div>
   )
 }
+
+[
+  {
+    transcript: "Welcome to Interview Central, your centralized platform for creating, managing, and analyzing interviews. Start organizing your process efficiently with a few clicks.",
+    link: "link",
+  },
+]
