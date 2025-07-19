@@ -1,44 +1,64 @@
 from roles import add_role, get_all_roles
 from recipients import add_recipient, get_all_recipients
-from questions import add_question, get_all_questions, get_response_status_for_question
-from responses import add_response, get_response_by_question_and_user, get_all_responses
+from questions import add_question, get_all_questions, get_question_by_id, update_summary, get_response_status_for_question
+from responses import add_response
+from pprint import pprint
 
-# === Test roles ===
+# Optional: clear entire DB before testing
+# clear_database()
+
+# Step 1: Create roles
 print("\n--- Adding Roles ---")
-add_role(1, "Developer")
-add_role(2, "Designer")
-print(get_all_roles())
+role_resp1 = add_role("Manager")
+role_resp2 = add_role("Engineer")
+print(role_resp1)
+print(role_resp2)
 
-# === Test recipients ===
+all_roles = get_all_roles()
+role_ids = [r["_id"] for r in all_roles]
+print("Roles in DB:", role_ids)
+
+# Step 2: Add recipients with role IDs
 print("\n--- Adding Recipients ---")
-add_recipient("dev@example.com", [1])
-add_recipient("design@example.com", [2])
-add_recipient("fullstack@example.com", [1, 2])
-print(get_all_recipients())
+add_recipient("alice@example.com", [role_ids[0]])
+add_recipient("bob@example.com", [role_ids[1]])
+add_recipient("carol@example.com", role_ids)  # has both roles
 
-# === Test questions ===
-print("\n--- Adding Questions ---")
-q_result = add_question(
-    questions=["What is your development experience?"],
-    flow_id="flow_123",
-    creator_email="dev@example.com",
-    roles=[1]
+print("Recipients:")
+pprint(get_all_recipients())
+
+# Step 3: Add question
+print("\n--- Adding Question ---")
+question_resp = add_question(
+    title="Team Preferences Survey",
+    questions=["Do you prefer remote or in-office work?", "What tools do you use daily?"],
+    flow_id="survey-001",
+    creator_email="alice@example.com",
+    roles=[role_ids[0]]  # send to Managers
 )
-question_id = q_result["question_id"]
-print(f"Created question: {question_id}")
-print(get_all_questions())
+print(question_resp)
 
-# === Test responses ===
-print("\n--- Adding Responses ---")
-add_response("dev@example.com", question_id, "I have 5 years of experience.", "http://interview.dev")
-add_response("fullstack@example.com", question_id, "Built many full-stack apps.", "http://interview.fs")
+question_id = question_resp["id"]
 
-print("\n--- Get Individual Response ---")
-print(get_response_by_question_and_user(question_id, "dev@example.com"))
+# Step 4: Get and update question
+print("\n--- Fetched Question ---")
+fetched = get_question_by_id(question_id)
+pprint(fetched)
 
-print("\n--- All Responses ---")
-print(get_all_responses())
+print("\n--- Updating Summary ---")
+update_result = update_summary(question_id, "Initial insights summarized.")
+print(update_result)
 
-# === Test response status ===
-print("\n--- Response Status for Question ---")
-print(get_response_status_for_question(question_id))
+# Step 5: Add a response
+print("\n--- Adding Response ---")
+add_response(question_id, "alice@example.com", ["Remote", "Slack, Zoom"], "https://interviews.com/alice")
+add_response(question_id, "carol@example.com", ["Hybrid", "Google Meet"], "https://interviews.com/carol")
+
+# Step 6: Response status
+print("\n--- Response Status ---")
+status = get_response_status_for_question(question_id)
+pprint(status)
+
+# Step 7: All Questions
+print("\n--- All Questions ---")
+pprint(get_all_questions())
