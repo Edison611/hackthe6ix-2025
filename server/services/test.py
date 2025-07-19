@@ -1,64 +1,57 @@
-from roles import add_role, get_all_roles
-from recipients import add_recipient, get_all_recipients
-from questions import add_question, get_all_questions, get_question_by_id, update_summary, get_response_status_for_question
-from responses import add_response
-from pprint import pprint
+from pymongo import MongoClient
+from bson import ObjectId
+from dotenv import load_dotenv
+import os
+import pprint
+from summary import summarize_responses_by_question_id
 
-# Optional: clear entire DB before testing
-# clear_database()
+load_dotenv()
+client = MongoClient(os.getenv("MONGODB_URI"))
+db = client.get_database()
+questions = db["questions"]
+responses = db["responses"]
 
-# Step 1: Create roles
-print("\n--- Adding Roles ---")
-role_resp1 = add_role("Manager")
-role_resp2 = add_role("Engineer")
-print(role_resp1)
-print(role_resp2)
+pp = pprint.PrettyPrinter(indent=2)
 
-all_roles = get_all_roles()
-role_ids = [r["_id"] for r in all_roles]
-print("Roles in DB:", role_ids)
+def test_summary_generation():
+    # 1. Insert a fake question
+    question = {
+        "creator_email": "tester@example.com",
+        "flow_id": "test-flow",
+        "questions": ["How do you feel about our remote policy?"],
+        "roles": [],
+        "summary": "",
+        "title": "Remote Policy Feedback"
+    }
+    question_id = questions.insert_one(question).inserted_id
+    print(f"Created test question with ID: {question_id}")
 
-# Step 2: Add recipients with role IDs
-print("\n--- Adding Recipients ---")
-add_recipient("alice@example.com", [role_ids[0]])
-add_recipient("bob@example.com", [role_ids[1]])
-add_recipient("carol@example.com", role_ids)  # has both roles
+    # 2. Insert fake responses with summaries
+    response_summaries = [
+        "I love working remotely; it's improved my productivity.",
+        "Remote work makes collaboration harder, but I like the flexibility.",
+        "The remote policy is fair, but hybrid would be better for team cohesion.",
+        "No issues with the policy, just wish for clearer expectations.",
+        "Remote work is convenient, but sometimes I miss in-person meetings."
+    ]
 
-print("Recipients:")
-pprint(get_all_recipients())
+    for summary in response_summaries:
+        responses.insert_one({
+            "question_id": question_id,
+            "email": "user@example.com",
+            "answers": ["Sample answer"],
+            "summary": summary
+        })
 
-# Step 3: Add question
-print("\n--- Adding Question ---")
-question_resp = add_question(
-    title="Team Preferences Survey",
-    questions=["Do you prefer remote or in-office work?", "What tools do you use daily?"],
-    flow_id="survey-001",
-    creator_email="alice@example.com",
-    roles=[role_ids[0]]  # send to Managers
-)
-print(question_resp)
+    # 3. Run the summarizer
+    result = summarize_responses_by_question_id(str(question_id))
+    print("\n=== Summarization Result ===")
+    pp.pprint(result)
 
-question_id = question_resp["id"]
+    # 4. Verify DB was updated
+    updated_question = questions.find_one({"_id": question_id})
+    print("\n=== Updated Question Summary ===")
+    print(updated_question.get("summary", "(No summary)"))
 
-# Step 4: Get and update question
-print("\n--- Fetched Question ---")
-fetched = get_question_by_id(question_id)
-pprint(fetched)
-
-print("\n--- Updating Summary ---")
-update_result = update_summary(question_id, "Initial insights summarized.")
-print(update_result)
-
-# Step 5: Add a response
-print("\n--- Adding Response ---")
-add_response(question_id, "alice@example.com", ["Remote", "Slack, Zoom"], "https://interviews.com/alice")
-add_response(question_id, "carol@example.com", ["Hybrid", "Google Meet"], "https://interviews.com/carol")
-
-# Step 6: Response status
-print("\n--- Response Status ---")
-status = get_response_status_for_question(question_id)
-pprint(status)
-
-# Step 7: All Questions
-print("\n--- All Questions ---")
-pprint(get_all_questions())
+if __name__ == "__main__":
+    test_summary_generation()
