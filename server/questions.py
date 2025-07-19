@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-from bson import ObjectId
 import uuid  # to generate unique string IDs
 
 load_dotenv()
