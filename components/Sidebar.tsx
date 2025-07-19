@@ -1,3 +1,5 @@
+"use client"
+
 import { Calendar, FileText, Home, Plus, Settings, Users, Mic, BarChart3 } from "lucide-react"
 import {
   Sidebar,
@@ -16,14 +18,8 @@ import { useUser } from "@auth0/nextjs-auth0";
 
 const menuItems = [
   {
-    title: "Create",
-    url: "#",
-    icon: Plus,
-    variant: "default" as const,
-  },
-  {
     title: "Dashboard",
-    url: "#",
+    url: "/dashboard",
     icon: Home,
   },
   {
@@ -32,8 +28,8 @@ const menuItems = [
     icon: Mic,
   },
   {
-    title: "Candidates",
-    url: "#",
+    title: "Employees",
+    url: "/users",
     icon: Users,
   },
   {
@@ -47,12 +43,11 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Reports",
-    url: "#",
+    title: "Trends",
+    url: "/trends",
     icon: FileText,
   },
 ]
-
 export function AppSidebar() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const { user } = useUser();
@@ -65,7 +60,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900">InterviewHub</h2>
-            <p className="text-sm text-slate-500">Talent Management</p>
+            <p className="text-sm text-slate-500">Simplify Your Meetings</p>
           </div>
         </div>
       </SidebarHeader>
@@ -85,17 +80,9 @@ export function AppSidebar() {
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`${
-                      index === 0
-                        ? "bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 shadow-lg"
-                        : "hover:bg-slate-100"
-                    } transition-all duration-200`}
-                  >
+                  <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
                     <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-lg">
                       <item.icon className="w-5 h-5 text-slate-600" />
                       <span className="font-medium text-slate-700">{item.title}</span>
@@ -141,7 +128,6 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-
       <CreateInterviewDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </Sidebar>
   )
