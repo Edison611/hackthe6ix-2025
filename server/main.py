@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from routes.ribbon import router as interview_router
 from routes.test import router as test_router
 from routes.recipients import router as recipients_router
+from routes.roles import router as roles_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -22,3 +23,4 @@ app.add_middleware(
 app.include_router(interview_router, prefix="")
 app.include_router(test_router)
 app.include_router(recipients_router)
+app.include_router(roles_router)  
