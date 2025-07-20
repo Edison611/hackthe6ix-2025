@@ -18,7 +18,7 @@ import { Plus, Trash2, Users } from "lucide-react"
 import { useUser } from "@auth0/nextjs-auth0"
 
 interface Role {
-    _id: string
+    id: string
     name: string
 }
 
@@ -96,7 +96,7 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
       title: interviewTitle,
       questions: questions.map((q) => q.text),
       creator_email: user?.email || "<unknown>",
-      roles: selectedRoles.map((role) => role._id),
+      roles: selectedRoles.map((role) => role.id),
     }
 
     console.log("Interview Data:", interviewData)
@@ -167,7 +167,7 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {roles.map((role) => (
                 <div
-                  key={role._id}
+                  key={role.id}
                   onClick={() => toggleRole(role)}
                   className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                     selectedRoles.includes(role)
@@ -182,7 +182,7 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
             {selectedRoles.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {selectedRoles.map((role) => (
-                  <Badge key={role._id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
+                  <Badge key={role.id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
                     {role.name}
                   </Badge>
                 ))}
