@@ -1,9 +1,11 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0";
 
 interface AssignedResponse {
-  id: string;
+  _id: string;
   question: string;
   assignedBy: string;
   status: "Pending" | "Completed";
@@ -24,12 +26,31 @@ const assignedResponses: AssignedResponse[] = [
   },
 ];
 
-export function CreatedInterviews() {
+  
+
+export function ForMe() {
+  const { user } = useUser();
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`http://localhost:8000/questions/creator/${user?.email}`);
+      const data = await res.json()
+      console.log("data", data);
+      setData(data)
+    }
+
+    fetchData()
+  }, [])
+
+  console.log(user);
+
+  console.log(data)
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-slate-900 mb-2">My Responses</h2>
-      {assignedResponses.map((res) => (
-        <Card key={res.id} className="border border-slate-200 bg-white shadow-sm">
+      {data.map((res) => (
+        <Card key={res._id} className="border border-slate-200 bg-white shadow-sm">
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold text-slate-900">{res.question}</h3>
             <p className="text-sm text-slate-600">Assigned by {res.assignedBy}</p>

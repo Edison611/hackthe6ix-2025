@@ -103,14 +103,19 @@ def get_all_questions():
 
 def get_questions_by_creator(user_email: str):
     """Get list of questions created by a specific user email."""
+    print("Getting questions for user:", user_email)
     if not user_email:
         return []
 
     questions = list(questions_collection.find(
-        {"creatorEmail": user_email}
+        {"creator_email": user_email}
     ))
 
     for q in questions:
+        print(q)
         q["_id"] = str(q["_id"])
+        q["roles"] = [str(rid) for rid in q.get("roles", [])]
+    
+    print(questions)
 
     return questions
