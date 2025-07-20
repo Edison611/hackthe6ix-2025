@@ -34,9 +34,10 @@ Save time, capture insight, and bring focus back to deep work.
 
 ## 🔗 Ribbon Endpoints Used
 
-This project uses the following [Ribbon API](https://www.hey.ribbon.cool) endpoints:
-
-
+This project uses the following Ribbon API endpoints:
+- POST request to /interview-flows, for creating "Meetings/Questionnaires"
+- POST request to /interviews, several of these are made to create a special interview link for each person in a role
+- GET request to /interviews, for retrieving transcripts of the "Meetings/Questionnaires" and display it for others to see
 
 ---
 
@@ -48,7 +49,7 @@ This project uses the following [Ribbon API](https://www.hey.ribbon.cool) endpoi
 
 2. **Invite Respondents**
    - Add recipients (employees) and assign them to roles.
-   - Automatically or manually distribute the question flows.
+   - Automatically distributes interview links to the interview flow.
 
 3. **Respond**
    - Employees respond asynchronously.
