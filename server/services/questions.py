@@ -12,6 +12,7 @@ db = client.get_database()
 
 questions_collection = db["questions"]
 recipients_collection = db["recipients"]
+responses_collection = db["responses"]
 
 def add_question(title: str, questions: list[str], flow_id: str, creator_email: str, roles: list[str]):
     """Add a question using MongoDB _id as primary identifier."""
@@ -116,3 +117,18 @@ def get_questions_by_creator(user_email: str):
         q["_id"] = str(q["_id"])
         q["roles"] = [str(rid) for rid in q.get("roles", [])]
     return questions
+
+def get_responses_for_question(question_id: str):
+    """Return an array of responses linked to a specific question ID."""
+    try:
+        qid = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
+    responses = list(responses_collection.find({"question_id": qid}))
+
+    for r in responses:
+        r["_id"] = str(r["_id"])
+        r["question_id"] = str(r["question_id"])
+
+    return responses

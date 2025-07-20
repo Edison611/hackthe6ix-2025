@@ -13,6 +13,7 @@ responses_collection = db["responses"]
 recipients_collection = db["recipients"]
 questions_collection = db["questions"]
 
+
 async def add_response_async(user_email: str, question_id: str, interview_id: str, interview_url: str, transcript: str = None):
     """Add a response linked to a recipient and a question, with empty summary."""
     if not recipients_collection.find_one({"email": user_email}):
