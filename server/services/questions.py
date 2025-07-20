@@ -107,10 +107,11 @@ def get_questions_by_creator(user_email: str):
         return []
 
     questions = list(questions_collection.find(
-        {"creatorEmail": user_email}
+        {"creator_email": user_email}
     ))
 
     for q in questions:
         q["_id"] = str(q["_id"])
-
+        q["roles"] = [str(rid) for rid in q.get("roles", [])]
+        
     return questions

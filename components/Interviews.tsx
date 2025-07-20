@@ -40,6 +40,8 @@ export function Interviews() {
     fetchQuestions();
   }, [user, isLoading]);
 
+  console.log("Questions:", questions);
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-slate-900 mb-2">My Questions</h2>
