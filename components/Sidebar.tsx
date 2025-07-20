@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useState } from "react"
 import { CreateInterviewDialog } from "@/components/Create_Interview_Dialog"
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0"
 
 const menuItems = [
   {
@@ -33,6 +33,11 @@ const menuItems = [
     icon: Users,
   },
   {
+    title: "Update Roles",      // <-- New tab added here
+    url: "/update-roles",
+    icon: Users,
+  },
+  {
     title: "Analytics",
     url: "#",
     icon: BarChart3,
@@ -48,9 +53,11 @@ const menuItems = [
     icon: FileText,
   },
 ]
+
 export function AppSidebar() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const { user } = useUser();
+  const { user } = useUser()
+
   return (
     <Sidebar className="border-r border-slate-200">
       <SidebarHeader className="p-6">
@@ -80,6 +87,7 @@ export function AppSidebar() {
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
@@ -91,7 +99,6 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              {/* Login Button */}
               {user ? (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
@@ -128,6 +135,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
       <CreateInterviewDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </Sidebar>
   )
