@@ -4,11 +4,11 @@ _“Not every meeting needs to be a meeting.”_
 
 ## 🧠 Project Overview
 
-**StandDown** is a Ribbon-powered platform designed to help teams reduce redundant stand-up meetings by replacing them with asynchronous, structured check-ins. 
+**CommonRoom** is a Ribbon-powered platform designed to help teams reduce redundant stand-up meetings by replacing them with asynchronous, structured check-ins. 
 
-Project managers and coordinators can use StandDown to send Ribbon-style interviews to employees — short, direct, and async. Team members answer questions on their own time, and their responses are analyzed with generative AI to surface key insights. 
+Project managers and coordinators can use CommonRoom to send Ribbon-style interviews to employees — short, direct, and async. Team members answer questions on their own time, and their responses are analyzed with generative AI to surface key insights. 
 
-Whether a manager wants detailed responses or just a quick summary of the overall team mood, StandDown delivers it — no calendar invites required.
+Whether a manager wants detailed responses or just a quick summary of the overall team mood, CommonRoom delivers it — no calendar invites required.
 
 ---
 
@@ -22,7 +22,7 @@ Too many meetings waste time and drain productivity, especially when the purpose
 
 ## ✅ Solution
 
-StandDown makes daily syncs async:
+CommonRoom makes daily syncs async:
 - Managers send out structured interview flows to employees.
 - Employees answer when it’s convenient.
 - AI-powered summaries surface key themes and feedback.
