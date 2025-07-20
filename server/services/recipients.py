@@ -30,6 +30,8 @@ def update_recipient_roles(email: str, role_ids: list[str]):
         role_object_ids = [ObjectId(rid) for rid in role_ids]
     except Exception:
         return {"success": False, "message": "Invalid role ID(s) provided."}
+
+    print(role_object_ids)
     
     result = recipients_collection.update_one(
         {"email": email},
