@@ -81,3 +81,6 @@ AUTH0_SCOPE=openid profile email read:shows
 GEMINI_API=
 MONGODB_URI=
 RIBBON_API_KEY=
+```
+
+The backend fastapi server is hosted on /server, and the next.js site is located on the root directory
