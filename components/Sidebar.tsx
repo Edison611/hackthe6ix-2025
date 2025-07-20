@@ -24,28 +24,13 @@ const menuItems = [
   },
   {
     title: "Interviews",
-    url: "#",
+    url: "/interviews",
     icon: Mic,
-  },
-  {
-    title: "Employees",
-    url: "/users",
-    icon: Users,
   },
   {
     title: "Update Roles",      // <-- New tab added here
     url: "/update-roles",
     icon: Users,
-  },
-  {
-    title: "Analytics",
-    url: "#",
-    icon: BarChart3,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
   },
   {
     title: "Trends",
@@ -66,7 +51,7 @@ export function AppSidebar() {
             <Mic className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">InterviewHub</h2>
+            <h2 className="text-xl font-bold text-slate-900">CommonRoom</h2>
             <p className="text-sm text-slate-500">Simplify Your Meetings</p>
           </div>
         </div>
@@ -104,7 +89,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild className="hover:bg-slate-100 transition-all duration-200">
                     <a href="/auth/logout" className="flex items-center gap-3 px-4 py-3 rounded-lg">
                       <Settings className="w-5 h-5 text-slate-600" />
-                      <span className="font-medium text-slate-700">Logout</span>
+                      <span className="font-medium text-slate-700">Logout ({user.email})</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

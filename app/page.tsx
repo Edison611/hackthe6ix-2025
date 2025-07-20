@@ -46,10 +46,10 @@ export default function Home() {
 
           <div className="space-y-4">
             <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-              Welcome to Interview Central
+              Welcome to CommonRoom
             </h1>
             <p className="text-slate-600 text-lg max-w-2xl">
-              Your centralized platform for creating, managing, and analyzing interviews. Start organizing your process efficiently with a few clicks.
+              Your centralized platform for creating, managing, and analyzing repetitive meetings such as standups. Start organizing your process efficiently with a few clicks.
             </p>
 
             <div className="flex space-x-4 mt-6">
