@@ -36,7 +36,8 @@ def summarize_response_by_id(response_id: str):
 
         prompt = (
             "The following is a transcript of an interview between a user and an interviewer.\n"
-            "Only summarize what the user said. Ignore the agent/interviewer.\n\n"
+            "Only summarize what the user said. Ignore the agent/interviewer.\n"
+            "Keep it under 200 words.\n\n"
             f"{transcript}"
         )
 
@@ -44,7 +45,7 @@ def summarize_response_by_id(response_id: str):
         result = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
-                max_output_tokens=300,
+                max_output_tokens=1000,
                 temperature=0.5
             )
         )
