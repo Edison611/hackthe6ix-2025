@@ -17,6 +17,7 @@ async def get_response_route(question_id: str):
 
 @router.get("/responses/{email}")
 async def get_responses_assigned_to_user_route(email: str):
+    print("Here")
     response = get_responses_assigned_to_user(email)
     return response
 

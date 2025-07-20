@@ -129,6 +129,19 @@ def get_all_responses():
     """Get list of all response documents."""
     return list(responses_collection.find({}, {"_id": 0}))
 
+
+
+def convert_object_ids(obj):
+    if isinstance(obj, dict):
+        return {k: convert_object_ids(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_object_ids(item) for item in obj]
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    else:
+        return obj
+
+
 def get_responses_assigned_to_user(user_email: str):
     """Get list of responses assigned to a specific user email (as respondent)."""
     if not user_email:
@@ -138,8 +151,17 @@ def get_responses_assigned_to_user(user_email: str):
         {"user_email": user_email}
     ))
 
+    print("Responses found for user:", user_email, "Count:", len(responses))
     for r in responses:
+        print("Response found:", r)
+        q = list(questions_collection.find({"_id": r["question_id"]}))
+        q = q[0] if q else {}
+        print("Question found:", q)
+            # r["question"] = q.get("question", "Unknown Question")
         r["_id"] = str(r["_id"])
         r["question_id"] = str(r["question_id"])
+        r["question"] = convert_object_ids(q)
+
+    print(responses)
 
     return responses
