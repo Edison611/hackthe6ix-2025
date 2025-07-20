@@ -68,3 +68,16 @@ git clone https://github.com/Edison611/hackthe6ix-2025.git
 cd hackthe6ix-2025
 
 ## ⚙️ How to Run Locally
+
+Use the following .env file with your own API keys
+
+AUTH0_SECRET=
+APP_BASE_URL=http://localhost:3000
+AUTH0_DOMAIN=
+AUTH0_CLIENT_ID=
+AUTH0_CLIENT_SECRET=
+AUTH0_AUDIENCE='leave blank'
+AUTH0_SCOPE=openid profile email read:shows
+GEMINI_API=
+MONGODB_URI=
+RIBBON_API_KEY=
