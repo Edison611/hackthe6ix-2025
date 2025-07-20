@@ -26,10 +26,10 @@ export default function Dashboard() {
                 value="all-interviews"
                 className="data-[state=active]:bg-slate-900 data-[state=active]:text-white"
               >
-                All Interviews
+                Created by Me
               </TabsTrigger>
               <TabsTrigger value="created" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white">
-                Created by Me
+                For Me
               </TabsTrigger>
             </TabsList>
 
