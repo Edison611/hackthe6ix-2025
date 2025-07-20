@@ -13,7 +13,32 @@ responses_collection = db["responses"]
 recipients_collection = db["recipients"]
 questions_collection = db["questions"]
 
-def add_response(user_email: str, question_id: str, transcript: str, interview_url: str):
+async def add_response_async(user_email: str, question_id: str, interview_url: str, transcript: str = None):
+    """Add a response linked to a recipient and a question, with empty summary."""
+    if not recipients_collection.find_one({"email": user_email}):
+        return {"success": False, "message": "Recipient (user) not found."}
+
+    try:
+        q_oid = ObjectId(question_id)
+    except Exception:
+        return {"success": False, "message": "Invalid question ID."}
+
+    if not questions_collection.find_one({"_id": q_oid}):
+        return {"success": False, "message": "Question not found."}
+
+    response_doc = {
+        "user_email": user_email,
+        "question_id": q_oid,
+        "transcript": transcript,
+        "interview_url": interview_url,
+        "summary": ""
+    }
+
+    result = responses_collection.insert_one(response_doc)
+    print("Response added:", response_doc)
+    return {"success": True, "message": "Response added successfully.", "id": str(result.inserted_id)}
+
+def add_response(user_email: str, question_id: str, interview_url: str, transcript: str = None):
     """Add a response linked to a recipient and a question, with empty summary."""
     if not recipients_collection.find_one({"email": user_email}):
         return {"success": False, "message": "Recipient (user) not found."}

@@ -1,6 +1,7 @@
 import httpx
 import os
 from config import RIBBON_API_KEY
+from services.responses import *
 
 # print(RIBBON_API_KEY)
 BASE_URL = "https://app.ribbon.ai/be-api/v1"
@@ -34,10 +35,9 @@ async def create_interview(title: str, questions: str):
         return res.json()
     
     
-async def send_interviews(interview_flow_id: str, recipients: list[str]):
+async def send_interviews(interview_flow_id: str, question_id: str, recipients: list[str]):
     payload = {
         "interview_flow_id": interview_flow_id,
-        "recipients": recipients
     }
 
     ret_res = []
@@ -45,8 +45,15 @@ async def send_interviews(interview_flow_id: str, recipients: list[str]):
     for recipient in recipients:
         async with httpx.AsyncClient() as client:
             res = await client.post(f"{BASE_URL}/interviews", headers=headers, json=payload)
+            print(res.json())
+            print(recipient)
             res.raise_for_status()
             ret_res.append(res.json())
+            
+            res2 = await add_response_async(user_email=recipient, question_id=question_id, interview_url=res.json().get("interview_link"))
+            print(res2)
+                    # transcript=res.json().get("transcript")
+                
             # Create request to database to store the interview link
 
     return ret_res

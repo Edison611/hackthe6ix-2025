@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,6 +16,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Trash2, Users } from "lucide-react"
 import { useUser } from "@auth0/nextjs-auth0"
+
+interface Role {
+    _id: string
+    name: string
+}
 
 interface Question {
   id: string
@@ -45,8 +50,22 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
     console.log(user);
   const [interviewTitle, setInterviewTitle] = useState("")
   const [questions, setQuestions] = useState<Question[]>([{ id: "1", text: "" }])
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([])
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>([])
   const [description, setDescription] = useState("")
+  const [roles, setRoles] = useState<Role[]>([])
+
+  console.log(roles)    
+//   console.log(roles ? roles[0].name : null)
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const res = await fetch("http://localhost:8000/roles")
+      const data = await res.json()
+      setRoles(data)
+    }
+
+    fetchRoles()
+  }, [])
 
   const addQuestion = () => {
     const newQuestion: Question = {
@@ -66,7 +85,7 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
     setQuestions(questions.map((q) => (q.id === id ? { ...q, text } : q)))
   }
 
-  const toggleRole = (role: string) => {
+  const toggleRole = (role: Role) => {
     setSelectedRoles((prev) => (prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]))
   }
 
@@ -75,10 +94,12 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
 
     const interviewData = {
       title: interviewTitle,
-      questions: questions.filter((q) => q.text.trim() !== ""),
+      questions: questions.map((q) => q.text),
       creator_email: user?.email || "<unknown>",
-      roles: selectedRoles,
+      roles: selectedRoles.map((role) => role._id),
     }
+
+    console.log("Interview Data:", interviewData)
 
     console.log("Creating interview:", interviewData)
 
@@ -97,7 +118,7 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ interviewData }),
+        body: JSON.stringify(interviewData),
       })
 
       const data = await res.json()
@@ -137,20 +158,6 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
             />
           </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium text-slate-700">
-              Description (Optional)
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Brief description of what this interview covers..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="border-slate-200 focus:border-slate-400 min-h-[80px]"
-            />
-          </div>
-
           {/* Target Roles */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -158,9 +165,9 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
               Target Roles * (Select all applicable roles)
             </Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {availableRoles.map((role) => (
+              {roles.map((role) => (
                 <div
-                  key={role}
+                  key={role._id}
                   onClick={() => toggleRole(role)}
                   className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                     selectedRoles.includes(role)
@@ -168,15 +175,15 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
                       : "border-slate-200 hover:border-slate-300 bg-white"
                   }`}
                 >
-                  <span className="text-sm font-medium">{role}</span>
+                  <span className="text-sm font-medium">{role.name}</span>
                 </div>
               ))}
             </div>
             {selectedRoles.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {selectedRoles.map((role) => (
-                  <Badge key={role} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
-                    {role}
+                  <Badge key={role._id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    {role.name}
                   </Badge>
                 ))}
               </div>
