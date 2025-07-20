@@ -115,7 +115,4 @@ def get_questions_by_creator(user_email: str):
         print(q)
         q["_id"] = str(q["_id"])
         q["roles"] = [str(rid) for rid in q.get("roles", [])]
-    
-    print(questions)
-
     return questions
