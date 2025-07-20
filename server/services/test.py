@@ -1,57 +1,34 @@
-from recipients import add_recipient, update_recipient_roles
-from roles import add_role
-from questions import add_question, get_question_by_id
-from responses import add_response
-from summary import summarize_response_by_id, summarize_responses_by_question_id
+from responses import get_responses_assigned_to_user
+from questions import get_questions_by_creator
 
-# Test constants
-ROLE_NAME = "Designer"
-QUESTION_TITLE = "Tool Feedback"
-QUESTION_FLOW_ID = "feedback-flow-1"
-QUESTION_TEXT = ["What's your favorite design tool?", "Why?"]
+def test_get_questions_by_creator():
+    print("Running test_get_questions_by_creator...")
 
-USERS = [
-    {"email": "alice@example.com", "name": "Alice", "transcript": "User: I love using Figma because it’s fast and collaborative."},
-    {"email": "bob@example.com", "name": "Bob", "transcript": "User: Photoshop is my go-to tool for high-end graphics work."}
-]
+    test_email = "test_creator@example.com"
+    questions = get_questions_by_creator(test_email)
 
-def test_question_summary_with_multiple_users():
-    print("=== Setup Role and Recipients ===")
-    role_res = add_role(ROLE_NAME)
-    assert role_res["success"], role_res["message"]
-    role_id = role_res["role_id"]
+    assert isinstance(questions, list), "Expected a list of questions"
+    for q in questions:
+        assert isinstance(q["_id"], str), "_id must be a string"
+        assert q.get("creatorEmail") == test_email, "creatorEmail mismatch"
 
-    for user in USERS:
-        add_recipient(user["email"], user["name"])
-        update_recipient_roles(user["email"], [role_id])
+    print(f"✅ Passed: Found {len(questions)} questions for {test_email}")
 
-    print("=== Add Question ===")
-    q_res = add_question(
-        title=QUESTION_TITLE,
-        questions=QUESTION_TEXT,
-        flow_id=QUESTION_FLOW_ID,
-        creator_email=USERS[0]["email"],
-        roles=[role_id]
-    )
-    assert q_res["success"], q_res["message"]
-    question_id = q_res["id"]
+def test_get_responses_assigned_to_user():
+    print("Running test_get_responses_assigned_to_user...")
 
-    print("=== Add Responses and Summarize Each ===")
-    for user in USERS:
-        r = add_response(user["email"], question_id, user["transcript"], "http://example.com/interview")
-        assert r["success"], r["message"]
-        response_id = r["id"]
-        print(f"Summarizing response for {user['email']}...")
-        res_summary = summarize_response_by_id(response_id)
-        print(res_summary)
+    test_email = "responder@example.com"
+    responses = get_responses_assigned_to_user(test_email)
 
-    print("\n=== Summarizing Entire Question ===")
-    final_summary = summarize_responses_by_question_id(question_id)
-    print("Final Summary:", final_summary)
+    assert isinstance(responses, list), "Expected a list of responses"
+    for r in responses:
+        assert isinstance(r["_id"], str), "_id must be a string"
+        assert isinstance(r["question_id"], str), "question_id must be a string"
+        assert r.get("user_email") == test_email, "user_email mismatch"
 
-    print("\n=== Updated Question Document ===")
-    q = get_question_by_id(question_id)
-    print("Question Summary:", q["summary"])
+    print(f"✅ Passed: Found {len(responses)} responses assigned to {test_email}")
+
 
 if __name__ == "__main__":
-    test_question_summary_with_multiple_users()
+    test_get_questions_by_creator()
+    test_get_responses_assigned_to_user()

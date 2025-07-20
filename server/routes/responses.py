@@ -15,6 +15,11 @@ async def get_response_route(question_id: str):
     response = get_responses_by_question_id(question_id)
     return response
 
+@router.get("/responses/{email}")
+async def get_responses_assigned_to_user_route(email: str):
+    response = get_responses_assigned_to_user(email)
+    return response
+
 
 # @router.get("/responses/{id}")
 # async def get_interviews_byId_route(id: str, recipients: list[str]):

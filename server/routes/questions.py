@@ -19,3 +19,8 @@ async def summarize_q_responses(question_id: str):
 async def get_q_by_id(id: str):
     response = get_question_by_id(id)
     return response
+
+@router.get("/questions/creator/{email}")
+async def get_questions_by_creator_route(email: str):
+    response = get_questions_by_creator(email)
+    return response
