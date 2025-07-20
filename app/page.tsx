@@ -1,5 +1,5 @@
 "use client"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@auth0/nextjs-auth0"
@@ -42,8 +42,6 @@ export default function Home() {
       <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100">
         <AppSidebar />
         <main className="flex-1 p-6">
-          <SidebarTrigger className="mb-4" />
-
           <div className="space-y-4">
             <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
               Welcome to CommonRoom
@@ -52,14 +50,14 @@ export default function Home() {
               Your centralized platform for creating, managing, and analyzing repetitive meetings such as standups. Start organizing your process efficiently with a few clicks.
             </p>
 
-            <div className="flex space-x-4 mt-6">
+            {/* <div className="flex space-x-4 mt-6">
               <Button className="bg-slate-900 text-white hover:bg-slate-700">
                 View All Interviews
               </Button>
               <Button variant="outline" className="border-slate-900 text-slate-900 hover:bg-slate-100">
                 Create New Interview
               </Button>
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
               <FeatureCard

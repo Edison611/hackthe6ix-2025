@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { ForMe } from "@/components/ForMe"
 import { Interviews } from "@/components/Interviews"
@@ -11,7 +11,6 @@ export default function Dashboard() {
         <AppSidebar />
         <main className="flex-1 p-6">
           <div className="mb-6">
-            <SidebarTrigger className="mb-4" />
             <div className="space-y-2">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                 Interview Dashboard

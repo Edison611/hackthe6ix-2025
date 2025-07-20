@@ -23,19 +23,9 @@ const menuItems = [
     icon: Home,
   },
   {
-    title: "Interviews",
-    url: "/interviews",
-    icon: Mic,
-  },
-  {
     title: "Update Roles",      // <-- New tab added here
     url: "/update-roles",
     icon: Users,
-  },
-  {
-    title: "Trends",
-    url: "/trends",
-    icon: FileText,
   },
 ]
 
@@ -107,20 +97,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="p-6">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="hover:bg-slate-100">
-              <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg">
-                <Settings className="w-5 h-5 text-slate-600" />
-                <span className="font-medium text-slate-700">Settings</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-
       <CreateInterviewDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </Sidebar>
   )
