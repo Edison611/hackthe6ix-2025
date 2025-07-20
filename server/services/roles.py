@@ -36,8 +36,10 @@ def get_role_by_id(role_id: str):
 def get_all_roles():
     roles = list(roles_collection.find({}, {"_id": 1, "name": 1}))
     for role in roles:
-        role["_id"] = str(role["_id"])
+        role["id"] = str(role["_id"])
+        del role["_id"]
     return roles
+
 
 def delete_role(role_id: str):
     try:
