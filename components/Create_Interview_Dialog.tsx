@@ -91,20 +91,20 @@ export function CreateInterviewDialog({ open, onOpenChange }: CreateInterviewDia
     // Close dialog
     onOpenChange(false)
 
-    // try {
-    //   const res = await fetch("http://localhost:8000/interviews", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({ interviewData }),
-    //   })
+    try {
+      const res = await fetch("http://localhost:8000/interviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ interviewData }),
+      })
 
-    //   const data = await res.json()
-    //   console.log(data)
-    // } catch (err) {
-    //   console.error("Error posting data:", err)
-    // }
+      const data = await res.json()
+      console.log(data)
+    } catch (err) {
+      console.error("Error posting data:", err)
+    }
 
     alert("Interview created successfully!")
   }

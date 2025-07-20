@@ -1,8 +1,42 @@
+"use client"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@auth0/nextjs-auth0"
+import { use, useEffect, useState } from "react"
 
 export default function Home() {
+  const { user, isLoading } = useUser()
+
+  useEffect(() => {
+    if (isLoading) return
+    if (!user) {
+      window.location.href = "/auth/login"
+    }
+
+    else {
+      async function handleCallback() {
+
+        const data = new URLSearchParams({
+          email: String(user?.email),
+          name: String(user?.nickname),
+        });
+
+        console.log(data)
+
+        const backendUrl = "http://localhost:8000";
+
+        const apiResponse = await fetch(`${backendUrl}/users?${data.toString()}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+      handleCallback();
+    }
+  }, [user, isLoading])
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100">
