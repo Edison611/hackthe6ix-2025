@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
-import { CreatedInterviews } from "@/components/Created_Interview"
+import { ForMe } from "@/components/ForMe"
 import { Interviews } from "@/components/Interviews"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -38,7 +38,7 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="created" className="space-y-6">
-              <CreatedInterviews />
+              <ForMe />
             </TabsContent>
           </Tabs>
         </main>
