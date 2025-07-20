@@ -5,6 +5,7 @@ from routes.recipients import router as recipients_router
 from routes.roles import router as roles_router
 from routes.questions import router as questions_router
 from routes.responses import router as responses_router
+from routes.summary import router as summary_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -28,3 +29,4 @@ app.include_router(recipients_router)
 app.include_router(roles_router)  
 app.include_router(questions_router)
 app.include_router(responses_router)
+app.include_router(summary_router)

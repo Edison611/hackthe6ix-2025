@@ -50,7 +50,7 @@ async def send_interviews(interview_flow_id: str, question_id: str, recipients: 
             res.raise_for_status()
             ret_res.append(res.json())
             
-            res2 = await add_response_async(user_email=recipient, question_id=question_id, interview_url=res.json().get("interview_link"))
+            res2 = await add_response_async(user_email=recipient, question_id=question_id, interview_id=res.json().get("interview_id"), interview_url=res.json().get("interview_link"))
             print(res2)
                     # transcript=res.json().get("transcript")
                 
@@ -62,8 +62,19 @@ async def send_interviews(interview_flow_id: str, question_id: str, recipients: 
 async def get_interviews(interview_flow_id: str = None):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{BASE_URL}/interviews", headers={"Authorization": f"Bearer {RIBBON_API_KEY}"})
+        print(res.json())
         res.raise_for_status()
         res = res.json()
         if interview_flow_id:
             res = [interview for interview in res if interview['interview_flow_id'] == interview_flow_id]
         return res
+
+async def get_interview_by_id(interview_id: str):
+    async with httpx.AsyncClient() as client:
+        res = await client.get(f"{BASE_URL}/interviews", headers={"Authorization": f"Bearer {RIBBON_API_KEY}"})
+        res.raise_for_status()
+        for i in res.json()["interviews"]:
+            print(i["interview_id"])
+            print(interview_id)
+            if i["interview_id"] == interview_id:
+                return i

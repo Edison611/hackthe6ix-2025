@@ -13,7 +13,7 @@ responses_collection = db["responses"]
 recipients_collection = db["recipients"]
 questions_collection = db["questions"]
 
-async def add_response_async(user_email: str, question_id: str, interview_url: str, transcript: str = None):
+async def add_response_async(user_email: str, question_id: str, interview_id: str, interview_url: str, transcript: str = None):
     """Add a response linked to a recipient and a question, with empty summary."""
     if not recipients_collection.find_one({"email": user_email}):
         return {"success": False, "message": "Recipient (user) not found."}
@@ -30,6 +30,7 @@ async def add_response_async(user_email: str, question_id: str, interview_url: s
         "user_email": user_email,
         "question_id": q_oid,
         "transcript": transcript,
+        "interview_id": interview_id,
         "interview_url": interview_url,
         "summary": ""
     }
@@ -104,12 +105,26 @@ def get_response_by_question_and_user(question_id: str, user_email: str):
         return {"success": False, "message": "Response not found for given question and user."}
     return response
 
-def get_responses_by_question_id(question_id: str):
+def get_response(response_id: str):
+    """Get a single response document by its ObjectId string."""
+    try:
+        r_oid = ObjectId(response_id)
+    except Exception:
+        return {"success": False, "message": "Invalid response ID."}
+
+    response = responses_collection.find_one({"_id": r_oid})
+    if not response:
+        return {"success": False, "message": "Response not found."}
+    return response
+
+def get_responses_by_question_id(interview_id: str = None, question_id: str = None):
     """Get list of response documents by question ID."""
     try:
         q_oid = ObjectId(question_id)
     except Exception:
         return []
+
+    return list(responses_collection.find({"question_id": question_id}))
 
     return list(responses_collection.find({"question_id": q_oid}, {"_id": 0}))
 
@@ -165,3 +180,18 @@ def get_responses_assigned_to_user(user_email: str):
     print(responses)
 
     return responses
+
+def update_transcript(response_id: str):
+    """Update the transcript of a response by its ObjectId string."""
+    try:
+        r_oid = ObjectId(response_id)
+    except Exception:
+        return {"success": False, "message": "Invalid response ID."}
+
+    result = responses_collection.update_one(
+        {"_id": r_oid},
+        {"$set": {"transcript": transcript}}
+    )
+    if result.matched_count == 0:
+        return {"success": False, "message": "Response not found."}
+    return {"success": True, "message": "Transcript updated successfully."}

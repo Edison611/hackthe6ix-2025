@@ -11,8 +11,8 @@ class InterviewCreateRequest(BaseModel):
 router = APIRouter()    
 
 @router.get("/responses")
-async def get_response_route(question_id: str):
-    response = get_responses_by_question_id(question_id)
+async def get_response_route(interview_id: str, question_id: str = None):
+    response = get_responses_by_question_id(interview_id, question_id)
     return response
 
 @router.get("/responses/{email}")

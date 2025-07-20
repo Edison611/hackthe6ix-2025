@@ -15,22 +15,22 @@ responses = db["responses"]
 genai.configure(api_key=os.getenv("GEMINI_API"))
 
 
-def summarize_response_by_id(response_id: str):
+def summarize_response_by_id(response_id: str, transcript: str = None):
     """
     Summarizes the transcript of a single response using Gemini 2.5,
     and updates its 'summary' field *only if it's currently empty*.
     """
     try:
+        print(response_id)
         response_doc = responses.find_one({"_id": ObjectId(response_id)})
 
         if not response_doc:
             return {"success": False, "message": "Response not found."}
 
         existing_summary = response_doc.get("summary", "")
-        if isinstance(existing_summary, str) and existing_summary.strip():
-            return {"success": True, "skipped": True, "message": "Already summarized. Skipping."}
+        # if isinstance(existing_summary, str) and existing_summary.strip():
+        #     return {"success": True, "skipped": True, "message": "Already summarized. Skipping."}
 
-        transcript = response_doc.get("transcript", "")
         if not transcript or not isinstance(transcript, str):
             return {"success": False, "message": "Transcript is empty or invalid."}
 
@@ -50,6 +50,8 @@ def summarize_response_by_id(response_id: str):
             )
         )
 
+        print(result)
+
         if not hasattr(result, "parts") or not result.parts:
             return {"success": False, "message": "Gemini returned no usable content."}
 
@@ -62,7 +64,12 @@ def summarize_response_by_id(response_id: str):
 
         update_result = responses.update_one(
             {"_id": ObjectId(response_id)},
-            {"$set": {"summary": summary}}
+            {"$set": {"summary": summary}},
+        )
+
+        update_result = responses.update_one(
+            {"_id": ObjectId(response_id)},
+            {"$set": {"transcript": transcript}}  # Update transcript as well
         )
 
         if update_result.modified_count == 0:

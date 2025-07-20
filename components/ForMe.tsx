@@ -36,22 +36,22 @@ export function ForMe() {
   const [data, setData] = useState<AssignedResponse[]>([]);
 
   const markAsComplete = async (id: string) => {
-    // try {
-    //   const res = await fetch(`http://localhost:8000/responses/${id}/complete`, {
-    //     method: "POST",
-    //   });
+    try {
+      const res = await fetch(`http://localhost:8000/summary/response/${id}`, {
+        method: "GET",
+      });
 
-    //   if (!res.ok) throw new Error("Failed to mark as complete");
+      if (!res.ok) throw new Error("Failed to mark as complete");
 
-    //   const updated = await res.json();
+      const updated = await res.json();
 
-    //   // Update the local state
-    //   setData((prev) =>
-    //     prev.map((item) => (item._id === id ? { ...item, transcript: updated.transcript } : item))
-    //   );
-    // } catch (error) {
-    //   console.error("Error:", error);
-    // }
+      // Update the local state
+      // setData((prev) =>
+      //   prev.map((item) => (item._id === id ? { ...item, transcript: updated.transcript } : item))
+      // );
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
 
@@ -77,6 +77,7 @@ export function ForMe() {
           <CardContent className="p-4 mx-8">
             <h3 className="text-lg font-semibold text-slate-900">{res.interview_url}</h3>
             <p className="text-sm text-slate-600">Assigned by {res.question.creator_email}</p>
+            <p className="my-5 text-sm text-slate-600">Summary: {res.summary}</p>
             <Badge
               className={
                 res.transcript
