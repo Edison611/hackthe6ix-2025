@@ -38,7 +38,7 @@ async def add_response_async(user_email: str, question_id: str, interview_url: s
     print("Response added:", response_doc)
     return {"success": True, "message": "Response added successfully.", "id": str(result.inserted_id)}
 
-def add_response(user_email: str, question_id: str, interview_url: str, transcript: str = None):
+def add_response(user_email: str, question_id: str, interview_id: str, interview_url: str, transcript: str = None):
     """Add a response linked to a recipient and a question, with empty summary."""
     if not recipients_collection.find_one({"email": user_email}):
         return {"success": False, "message": "Recipient (user) not found."}
@@ -56,7 +56,8 @@ def add_response(user_email: str, question_id: str, interview_url: str, transcri
         "question_id": q_oid,
         "transcript": transcript,
         "interview_url": interview_url,
-        "summary": ""
+        "summary": "",
+        "interview_id": ""
     }
 
     result = responses_collection.insert_one(response_doc)
